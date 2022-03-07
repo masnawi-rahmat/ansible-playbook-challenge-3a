@@ -1,4 +1,5 @@
-# this anisble playbook is created by masnawi rahmat in submission of class challenge no 3 
+# this anisble playbook is created by masnawi rahmat in submission of class challenge no 3
+# this ansible playbook is created with learning purpose more than optimisation in mind
 # in Generation SG/Temasek Poly SGUPMSCT Cloud Support and DevOPs Bootcamp cohort no 4 Yr 2022
 # this ansible playbook assumes that you:
 # (1) have the NOPASSWD auth in the remote node to execute commands otherwise please insert line 
@@ -19,7 +20,7 @@
 # (4) saving parsed data into new files  
 # (5) calculating the sum of uni/poly IT graduates and writing the value into a pre-existing file
 # (6) optional - removing all directory, subdirectories and files created by this ansible playbook
-# and to activate 'uncomment' line 238 to 248
+# and to activate 'uncomment' line 239 to 249
 
 ---
 - hosts: testserver
