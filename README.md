@@ -1,5 +1,6 @@
 # ansible-playbook-challenge-3a
 # class challenge creating ansible playbook to fetch and unpack csv zip file from data.gov.sg and create a custom list by jmesquery without the use of a python script
+# this ansible playbook is created with learning purpose more than optimisation in mind
 # this anisble playbook is created by masnawi rahmat in submission of class challenge no 3 
 # in Generation SG/Temasek Poly SGUPMSCT Cloud Support and DevOPs Bootcamp cohort no 4 Yr 2022
 # this ansible playbook assumes that you:
@@ -21,4 +22,4 @@
 # (4) saving parsed data into new files  
 # (5) calculating the sum of uni/poly IT graduates and writing the value into a pre-existing file
 # (6) optional - removing all directory, subdirectories and files created by this ansible playbook
-# and to activate 'uncomment' line 238 to 248
+# and to activate 'uncomment' line 239 to 249
