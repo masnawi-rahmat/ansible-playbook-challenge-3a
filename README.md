@@ -1,5 +1,5 @@
 # ansible-playbook-challenge-3a
-an ansible playbook to fetch and unpack csv zip file from data.gov.sg and create a custom list by jmesquery without the use of a python script
+# class challenge creating ansible playbook to fetch and unpack csv zip file from data.gov.sg and create a custom list by jmesquery without the use of a python script
 # this anisble playbook is created by masnawi rahmat in submission of class challenge no 3 
 # in Generation SG/Temasek Poly SGUPMSCT Cloud Support and DevOPs Bootcamp cohort no 4 Yr 2022
 # this ansible playbook assumes that you:
