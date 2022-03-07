@@ -1,0 +1,250 @@
+# this anisble playbook is created by masnawi rahmat in submission of class challenge no 3 
+# in Generation SG/Temasek Poly SGUPMSCT Cloud Support and DevOPs Bootcamp cohort no 4 Yr 2022
+# this ansible playbook assumes that you:
+# (1) have the NOPASSWD auth in the remote node to execute commands otherwise please insert line 
+# "your_username ALL=(ALL:ALL)       NOPASSWD: ALL" in /etc/sudoers.d
+# (2) have jmespath package installed to execute 'jmesquery' otherwise do a 'pip/apt install jmespath' 
+# the objectives of this ansible playbook:
+# (1) fetch csv data from data.gov.sg in zip format
+# (2) unzip csv data
+# (3) make correction to the formatting of a value in the csv data
+# (4) read csv raw data
+# (5) parse data with jmesquery without using python script
+# (6) generate custom json list and make arithmetic calculaation
+# tasks covered in this playbook: 
+# (1) creating directory and subdirectories by looping
+# (2) fetching and unpacking csv data from data.gov.sg into a file
+# (3) make correction of the formatting of a value in the csv data
+# (3) parsing data with jmesquery and generate custom json list
+# (4) saving parsed data into new files  
+# (5) calculating the sum of uni/poly IT graduates and writing the value into a pre-existing file
+# (6) optional - removing all directory, subdirectories and files created by this ansible playbook
+# and to activate 'uncomment' line 238 to 248
+
+---
+- hosts: testserver
+  tasks:
+
+    - name: create and set folder auth. for new directory and subdirectories by looping
+      file:
+        path: "{{ item }}"
+        state: directory
+        mode: 0777
+      loop:
+        - ./challenge_3a/data_uni
+        - ./challenge_3a/data_poly
+
+    - name: unzip and set file auth. containing uni enrolment csv data into a directory
+      unarchive:
+        src: https://data.gov.sg/dataset/249f1149-1e04-40e2-81c6-bfab3bba5574/download
+        dest: ./challenge_3a/data_uni
+        mode: 0777
+        remote_src: yes
+
+    - name: correct numeric value from '1,244' to '1244' contained in the csv data imported from source to avoid arithmetic error from inconsistent format
+      replace:
+        path: ./challenge_3a/data_uni/universities-intake-enrolment-and-graduates-by-course.csv
+        regexp: '1\,244'
+        replace: '1244'
+
+    - name: read uni enrolment csv raw data
+      read_csv:
+        path: ./challenge_3a/data_uni/universities-intake-enrolment-and-graduates-by-course.csv
+      register: data_uni_csv
+
+    - name: 1st data parse - read csv data with no filter
+      debug: msg="{{ data_uni_csv }}"
+      no_log: true
+      register: data_uni_00
+
+    - name: save 1st data parsed in a file and in a directory
+      copy:
+        content: "{{ data_uni_00 }}"
+        dest: ./challenge_3a/data_uni/data_uni_00
+        mode: 0777
+
+    - name: 2nd data parse - read data and filter by 'year', 'course', 'sex' and 'graduates'
+      debug: msg="{{ data_uni_00 | json_query(jmesquery) }}"
+      no_log: true
+      vars:
+        jmesquery: msg.list[].{year:year, course:course, sex:sex, graduates:graduates}
+      register: data_uni_01
+
+    - name: save 2nd data parsed in a file and in a directory
+      copy:
+        content: "{{ data_uni_01}}"
+        dest: ./challenge_3a/data_uni/data_uni_01
+        mode: 0777
+
+    - name: 3rd data parse - read data and filter by course 'Information Technology'
+      debug: msg="{{ data_uni_01 | json_query(jmesquery) }}"
+      no_log: true
+      vars:
+        jmesquery: msg[?course=='Information Technology']
+      register: data_uni_02
+
+    - name: save 3rd data parsed in a file and in a directory
+      copy:
+        content: "{{ data_uni_02}}"
+        dest: ./challenge_3a/data_uni/data_uni_02
+        mode: 0777
+
+    - name: 4th data parse - read data and filter by sex 'MF' and generate list of uni IT graduates for corresponding year
+      debug: msg="{{ data_uni_02 | json_query(jmesquery) }}"
+      no_log: true
+      vars:
+        jmesquery: msg[?sex=='MF']
+      register: data_uni_03
+
+    - name: save 4th data parsed in a file and in a directory
+      copy:
+        content: "{{ data_uni_03 }}"
+        dest: ./challenge_3a/data_uni/data_uni_03
+        mode: 0777
+
+    - name: 5th data parse - read data and filter by 'year' and 'graduates'  
+      debug: msg="{{ data_uni_03 | json_query(jmesquery) }}"
+      no_log: true
+      vars:
+        jmesquery: msg[*][graduates, year]
+      register: data_uni_04
+
+    - name: save 5th data parsed in a file and in a directory
+      copy:
+        content: "{{ data_uni_04 }}"
+        dest: ./challenge_3a/data_uni/data_uni_04
+        mode: 0777
+
+    - name: total nos of uni IT graduates
+      no_log: true
+      debug:
+        msg: "Total nos of Uni IT Graduates: {{ data_uni_04 | json_query('msg[*][0]')|list|map('int')|sum }}"
+      register: total_uni_IT_graduates
+
+    - name: insert the total nos of uni IT graduates in file data_uni_03
+      lineinfile:
+        path: ./challenge_3a/data_uni/data_uni_03
+        line: "{{ total_uni_IT_graduates }}"
+
+    - name: display list of uni IT graduates for the corresponding year
+      debug:
+        msg: "{{ data_uni_03 }}"
+
+    - name: display total no of uni IT graduates
+      debug:
+        msg: "{{ total_uni_IT_graduates }}"
+
+    - name: unzip and set file auth. containing poly enrolment csv data into a directory
+      unarchive:
+        src: https://data.gov.sg/dataset/f6048a81-0f7b-436c-8bfa-ebe1bb42cfdc/download
+        dest: ./challenge_3a/data_poly
+        mode: 0777
+        remote_src: yes
+
+    - name: read poly enrolment csv raw data
+      read_csv:
+        path: ./challenge_3a/data_poly/polytechnics-intake-enrolment-and-graduates-by-course.csv
+      register: data_poly_csv
+
+    - name: 1st data parse - read csv data with no filter
+      debug: msg="{{ data_poly_csv }}"
+      no_log: true
+      register: data_poly_00
+
+    - name: save 1st data parsed in a file and in a directory
+      copy:
+        content: "{{ data_poly_00 }}"
+        dest: ./challenge_3a/data_poly/data_poly_00
+        mode: 0777
+
+    - name: 2nd data parse - read data and filter by 'year', 'course', 'sex' and 'graduates'
+      debug: msg="{{ data_poly_00 | json_query(jmesquery) }}"
+      no_log: true
+      vars:
+        jmesquery: msg.list[].{year:year, course:course, sex:sex, graduates:graduates}
+      register: data_poly_01
+
+    - name: save 2nd data parsed in a file and in a directory
+      copy:
+        content: "{{ data_poly_01}}"
+        dest: ./challenge_3a/data_poly/data_poly_01
+        mode: 0777
+
+    - name: 3rd data parse - read data and filter by course 'Information Technology'
+      debug: msg="{{ data_poly_01 | json_query(jmesquery) }}"
+      no_log: true
+      vars:
+        jmesquery: msg[?course=='Information Technology']
+      register: data_poly_02
+
+    - name: save 3rd data parsed in a file and in a directory
+      copy:
+        content: "{{ data_poly_02}}"
+        dest: ./challenge_3a/data_poly/data_poly_02
+        mode: 0777
+
+    - name: 4th data parse - read data and filter by sex 'MF' and generate list of poly IT graduates for corresponding year
+      debug: msg="{{ data_poly_02 | json_query(jmesquery) }}"
+      no_log: true
+      vars:
+        jmesquery: msg[?sex=='MF']
+      register: data_poly_03
+
+    - name: save 4th data parsed in a file and in a directory
+      copy:
+        content: "{{ data_poly_03 }}"
+        dest: ./challenge_3a/data_poly/data_poly_03
+        mode: 0777
+
+    - name: 5th data parse - read data and filter by 'year' and 'graduates'  
+      debug: msg="{{ data_poly_03 | json_query(jmesquery) }}"
+      no_log: true
+      vars:
+        jmesquery: msg[*][graduates, year]
+      register: data_poly_04
+
+    - name: save 5th data parsed in a file and in a directory
+      copy:
+        content: "{{ data_poly_04 }}"
+        dest: ./challenge_3a/data_poly/data_poly_04
+        mode: 0777
+
+    - name: total nos of poly IT graduates
+      no_log: true
+      debug:
+        msg: "Total nos of Poly IT Graduates: {{ data_poly_04 | json_query('msg[*][0]')|list|map('int')|sum }}"
+      register: total_poly_IT_graduates
+
+    - name: insert the total nos of poly IT graduates in file data_poly_03
+      lineinfile:
+        path: ./challenge_3a/data_poly/data_poly_03
+        line: "{{ total_poly_IT_graduates }}"
+
+    - name: display list of poly IT graduates for the corresponding year
+      debug:
+        msg: "{{ data_poly_03 }}"
+
+    - name: display total no of poly IT graduates
+      debug:
+        msg: "{{ total_poly_IT_graduates }}"
+
+    - name: confirm directories and files created in this ansible playbook 
+      shell: ls -R ./challenge_3a
+      register: confirm_directory_created
+
+    - debug:
+        msg: "Directories and files created {{ confirm_directory_created.stdout_lines }}"
+
+    # - name: clear challenge 3a directory and files
+    #   file: 
+    #     state: absent
+    #     path: ./challenge_3a
+
+    # - name: confirm deletion of challenge 3a directory and files 
+    #   shell: ls -R ./challenge_3a
+    #   register: confirm_directory_deletion
+
+    # - debug:
+    #     msg: "{{ confirm_directory_deletion.stdout_lines }}"
+
+
