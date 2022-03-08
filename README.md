@@ -2,7 +2,7 @@
 # class challenge creating ansible playbook to fetch and unpack csv zip file from data.gov.sg and create a custom list by jmesquery without the use of a python script
 # this ansible playbook is created with learning purpose more than optimisation in mind
 # this anisble playbook is created by masnawi rahmat in submission of class challenge no 3 
-# in Generation SG/Temasek Poly SGUPMSCT Cloud Support and DevOPs Bootcamp cohort no 4 Yr 2022
+# in Generation SG/Temasek Poly SGUPMSCT Cloud Support and DevOps Bootcamp cohort no 4 Yr 2022
 # this ansible playbook assumes that you:
 # (1) have the NOPASSWD auth in the remote node to execute commands otherwise please insert line 
 # "your_username ALL=(ALL:ALL)       NOPASSWD: ALL" in /etc/sudoers.d
