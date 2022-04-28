@@ -18,8 +18,7 @@
 \# (1) creating directory and subdirectories by looping <br />
 \# (2) fetching and unpacking csv data from data.gov.sg into a file <br />
 \# (3) make correction of the formatting of a value in the csv data <br />
-\# (3) parsing data with jmesquery and generate custom json list <br />
-\# (4) saving parsed data into new files <br />  
-\# (5) calculating the sum of uni/poly IT graduates and writing the value into a pre-existing file <br />
-\# (6) optional - removing all directory, subdirectories and files created by this ansible playbook <br />
-\# and to activate 'uncomment' line 239 to 249 <br />
+\# (4) parsing data with jmesquery and generate custom json list <br />
+\# (5) saving parsed data into new files <br />
+\# (6) calculating the sum of uni/poly IT graduates and writing the value into a pre-existing file <br />
+\# (7) optional - removing all directory, subdirectories and files created by this ansible playbook and to activate 'uncomment' line 239 to 249
